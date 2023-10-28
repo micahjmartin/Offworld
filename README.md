@@ -10,13 +10,13 @@ and collect the files from the system and push them back if needed.
 Offworld is a single python script which is _best_ installed overtop of `git`. This will allow
 offworld to sync the files every time a git command is run. You may use Offworld as an independent tool as well but ymmv.
 
-# Method 1
+### Method 1
 ```bash
 git clone git@github.com:micahjmartin/Offworld.git
 cp Offworld/offworld.py ~/.local/bin/git
 ```
 
-# Method 2
+### Method 2
 ```bash
 git clone git@github.com:micahjmartin/Offworld.git
 cp Offworld/offworld.py ~/.local/bin/offworld
