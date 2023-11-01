@@ -12,6 +12,9 @@ import subprocess
 # Not currently changeable
 OFFFILE = ".offworld"
 
+PREFIX = "offworld"
+PREFIX = ""
+
 # user is expecting git (alias or other) and offworld is running instead
 _, f = os.path.split(sys.argv[0])
 GITMODE = f == "git"
@@ -34,9 +37,9 @@ class File:
             self.Name = os.path.abspath(src)
 
         if self.Name.startswith("~/"):
-            self.RepoName = self.Name.replace("~", "offworld/_home_", 1)
+            self.RepoName = self.Name.replace("~", os.path.join(PREFIX, "_home_"), 1)
         else:
-            self.RepoName = os.path.join("offworld", self.DiskName().lstrip(os.path.sep))
+            self.RepoName = os.path.join(PREFIX, self.DiskName().lstrip(os.path.sep))
 
     def DiskName(self) -> str:
         if self.Name.startswith("~/"):
@@ -56,9 +59,13 @@ class File:
         """Load the file into the repo"""
         src = self.DiskName()
         dst_dir, _ = os.path.split(self.RepoName)
+        if not os.path.isfile(src):
+            if os.path.isfile(self.RepoName):
+                # File has been deleted
+                os.remove(self.RepoName)
+            return
         os.makedirs(dst_dir, exist_ok=True)
         shutil.copy2(src, self.RepoName)
-        run(["git", "add", self.RepoName])
 
     def Protected(self) -> bool:
         return not os.access(self.DiskName(), os.W_OK)
@@ -93,7 +100,6 @@ def run(args, shell=False, **kwargs):
 def save(s):
     with open(OFFFILE, "w") as f:
         json.dump(s, f, indent=2)
-    run(["git", "add", OFFFILE])
 
 def usage():
     if GITMODE:
@@ -149,7 +155,6 @@ def parse():
             
             SOURCES[f.Name] = f.Protected()
             f.Load()
-            run(["git", "add", f.RepoName])
         save(SOURCES)
         return
 
